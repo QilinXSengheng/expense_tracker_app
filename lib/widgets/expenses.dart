@@ -27,6 +27,7 @@ class _ExpensesState extends State<Expenses> {
 
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
+      useSafeArea: true,
       isScrollControlled: true,
       context: context,
       builder: (ctx) => NewExpense(
@@ -46,7 +47,7 @@ class _ExpensesState extends State<Expenses> {
     setState(() {
       _registerExpenses.remove(expense);
     });
-    ScaffoldMessenger.of(context).clearSnackBars();  
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${expense.title} is removed'),
@@ -65,6 +66,8 @@ class _ExpensesState extends State<Expenses> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     Widget mainContent = const Center(
       child: Text('No expenses are found. Start adding some!'),
     );
@@ -77,22 +80,38 @@ class _ExpensesState extends State<Expenses> {
     }
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Expense Tracker'),
-          actions: [
-            IconButton(
-              onPressed: _openAddExpenseOverlay,
-              icon: const Icon(Icons.add),
+      appBar: AppBar(
+        title: const Text('Expense Tracker'),
+        actions: [
+          IconButton(
+            onPressed: _openAddExpenseOverlay,
+            icon: const Icon(Icons.add),
+          )
+        ],
+      ),
+      body: width < 600
+          ? Column(
+              children: [
+                Chart(
+                  expenses: _registerExpenses,
+                ),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
             )
-          ],
-        ),
-        body: Column(
-          children: [
-            Chart (
-              expenses: _registerExpenses,
+          : Row(
+              children: [
+                Expanded(
+                  child: Chart(
+                    expenses: _registerExpenses,
+                  ),
+                ),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
             ),
-            Expanded(child: mainContent),
-          ],
-        ));
+    );
   }
 }
